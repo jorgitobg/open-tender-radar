@@ -32,8 +32,6 @@ def match_tender(tender: Tender, profile: Profile) -> Match | None:
         reasons.append(f"keywords in title: {', '.join(kw_hits)}")
     if not reasons:
         return None
-    if profile.include_keywords and not kw_hits and not cpv_hits:
-        return None
     return Match(tender, tuple(reasons))
 
 

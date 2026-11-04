@@ -41,7 +41,7 @@ def _parse_entry(entry: ET.Element) -> Tender:
         buyer=buyer,
         cpv=cpv,
         estimated_value=float(amount) if amount else None,
-        deadline=date.fromisoformat(deadline_raw) if deadline_raw else None,
+        deadline=date.fromisoformat(deadline_raw[:10]) if deadline_raw else None,
     )
 
 

@@ -53,3 +53,17 @@ def test_placsp_entry_without_folder_is_skipped() -> None:
     xml = b'<feed xmlns="http://www.w3.org/2005/Atom"><entry><title>x</title></entry></feed>'
     res = parse_placsp(xml)
     assert not res.tenders and res.issues[0].reason == "no ContractFolderStatus"
+
+
+def test_placsp_deadline_with_timezone_suffix_is_accepted() -> None:
+    xml = (
+        '<feed xmlns="http://www.w3.org/2005/Atom"'
+        ' xmlns:cbc="urn:dgpe:names:draft:codice:schema:xsd:CommonBasicComponents-2"'
+        ' xmlns:cac="urn:dgpe:names:draft:codice:schema:xsd:CommonAggregateComponents-2"'
+        ' xmlns:ext="urn:dgpe:names:draft:codice-place-ext:schema:xsd:CommonAggregateComponents-2">'
+        "<entry><title>t</title><ext:ContractFolderStatus><cbc:ContractFolderID>X</cbc:ContractFolderID>"
+        "<cac:TenderSubmissionDeadlinePeriod><cbc:EndDate>2026-12-01+01:00</cbc:EndDate>"
+        "</cac:TenderSubmissionDeadlinePeriod></ext:ContractFolderStatus></entry></feed>"
+    )
+    res = parse_placsp(xml.encode())
+    assert not res.issues and res.tenders[0].deadline == date(2026, 12, 1)
