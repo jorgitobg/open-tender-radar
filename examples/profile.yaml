@@ -1,0 +1,8 @@
+# Synthetic profile of a fictional small AI/software consultancy. Not a real company.
+name: acme-ai-consulting (fictional)
+cpv_prefixes: ["72", "48"]        # IT services, software packages
+include_keywords: [software, datos, inteligencia artificial, ciberamenazas]
+exclude_keywords: [obra civil, mobiliario]
+min_value: 20000
+max_value: 1000000
+min_days_to_deadline: 7
