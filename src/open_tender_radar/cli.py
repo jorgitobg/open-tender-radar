@@ -13,6 +13,7 @@ from .domain.evaluation import evaluate
 from .domain.filtering import filter_tenders
 from .domain.models import Evaluation, ParseResult, Profile, Verdict
 from .profile import load_profile
+from .report import render_json, render_markdown
 
 _ORDER = {Verdict.GO: 0, Verdict.REVIEW: 1, Verdict.NO_GO: 2}
 
@@ -39,17 +40,24 @@ def main(argv: Sequence[str] | None = None) -> int:
     p.add_argument("--ted", type=Path, action="append", default=[], help="TED JSON file")
     p.add_argument("--placsp", type=Path, action="append", default=[], help="PLACSP ATOM file")
     p.add_argument("--today", type=date.fromisoformat, default=date.today())
+    p.add_argument("--format", choices=["text", "markdown", "json"], default="text")
+    p.add_argument("--out", type=Path, help="write the report to this file instead of stdout")
     a = p.parse_args(argv)
     results = [parse_ted(f.read_bytes()) for f in a.ted]
     results += [parse_placsp(f.read_bytes()) for f in a.placsp]
     evals = triage(results, load_profile(a.profile), a.today)
-    print(
-        render(
-            evals,
-            issues=sum(len(r.issues) for r in results),
-            total=sum(len(r.tenders) for r in results),
-        )
-    )
+    issues = sum(len(r.issues) for r in results)
+    total = sum(len(r.tenders) for r in results)
+    if a.format == "markdown":
+        text = render_markdown(evals, total, issues)
+    elif a.format == "json":
+        text = render_json(evals, total, issues) + "\n"
+    else:
+        text = render(evals, issues=issues, total=total) + "\n"
+    if a.out is not None:
+        a.out.write_text(text, encoding="utf-8")
+    else:
+        print(text, end="")
     return 0
 
 

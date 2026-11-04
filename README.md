@@ -14,7 +14,8 @@ Public open data only. The profile in `examples/profile.yaml` is fictional.
 | CPV + keyword filter with reasons | done |
 | Explained GO / REVIEW / NO_GO | done |
 | Live fetch adapters | not implemented (you supply downloaded files) |
-| Tender-document analysis, compliance matrix, MCP server | not implemented |
+| Screening compliance matrix + Markdown/JSON report | done (criteria columns only) |
+| Tender-document analysis, bid-compliance checks, MCP server | not implemented |
 
 ## Quickstart (no network, no keys)
 
@@ -89,6 +90,31 @@ python -m open_tender_radar --profile examples/profile.yaml --ted ted.json --pla
     fail    value     4,555,282 EUR above maximum 1,000,000
     fail    deadline  -5 days left, need at least 7
     pass    keywords  keywords: datos
+```
+
+## Reports: compliance matrix (Markdown / JSON)
+
+`--format markdown|json` (optionally `--out FILE`) turns the same explained evaluation into a matrix with one row per tender and one column per criterion, plus an evidence section. It is a *screening* matrix over the four built-in criteria; it does not check tender-document requirements.
+
+```bash
+python -m open_tender_radar --profile examples/profile.yaml --ted tests/fixtures/ted_search_sample.json \
+  --placsp tests/fixtures/placsp_sample.atom --today 2026-11-04 --format markdown
+```
+
+First lines of the real output:
+
+```text
+# Tender screening report
+
+11 tenders parsed, 10 match the profile, 0 skipped. GO: 1, REVIEW: 2, NO_GO: 7.
+
+## Compliance matrix
+
+| Tender | Verdict | cpv | value | deadline | keywords |
+|---|---|---|---|---|---|
+| PLACSP:412026 | GO | PASS | PASS | PASS | UNKNOWN |
+| TED:674568-2026 | REVIEW | PASS | UNKNOWN | UNKNOWN | PASS |
+| TED:674694-2026 | REVIEW | PASS | UNKNOWN | UNKNOWN | PASS |
 ```
 
 ## How verdicts are decided
