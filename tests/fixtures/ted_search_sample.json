@@ -1,0 +1,127 @@
+{
+ "totalNoticeCount": 575,
+ "notices": [
+  {
+   "deadline-receipt-tender-date-lot": [
+    "2026-10-30+02:00"
+   ],
+   "notice-type": "cn-standard",
+   "publication-number": "674346-2026",
+   "classification-cpv": [
+    "48000000",
+    "72267000",
+    "48000000",
+    "72267000"
+   ],
+   "buyer-name": {
+    "spa": [
+     "IZFE - Sociedad Foral de Servicios Informáticos - IZFE - Sociedad Foral de Servicios Informáticos"
+    ]
+   },
+   "publication-date": "2026-10-01+02:00",
+   "notice-title": {
+    "spa": "España – Paquetes de software y sistemas de información – Suministro de Licencias de Citrix y Control UP, soporte y mantenimiento",
+    "eng": "Spain – Software package and information systems – Suministro de Licencias de Citrix y Control UP, soporte y mantenimiento"
+   }
+  },
+  {
+   "deadline-receipt-tender-date-lot": [
+    "2026-11-04+01:00"
+   ],
+   "notice-type": "cn-standard",
+   "publication-number": "674551-2026",
+   "classification-cpv": [
+    "72514300",
+    "30200000",
+    "32420000",
+    "48000000",
+    "50324100",
+    "98392000",
+    "72514300",
+    "30200000",
+    "32420000",
+    "48000000",
+    "50324100",
+    "98392000"
+   ],
+   "buyer-name": {
+    "spa": [
+     "Presidencia de Turisme Comunitat Valenciana"
+    ]
+   },
+   "publication-date": "2026-10-01+02:00",
+   "notice-title": {
+    "spa": "España – Servicios de gestión de instalaciones para el mantenimiento de sistemas informáticos – Migración y puesta en servicio de recursos tecnológicos de Turisme Comunitat Valenciana hacia un Centro de Procesamiento de Datos (CPD) externo gestionado, operado en modalidad de Infraestructura como Servicio (IaaS), incluyendo transición de máquinas virtuales, repositorios de almacenamiento, sistemas de copia de seguridad y comunicaciones necesarias para su integración en el nuevo entorno.",
+    "eng": "Spain – Facilities management services for computer systems maintenance – Migración y puesta en servicio de recursos tecnológicos de Turisme Comunitat Valenciana hacia un Centro de Procesamiento de Datos (CPD) externo gestionado, operado en modalidad de Infraestructura como Servicio (IaaS), incluyendo transición de máquinas virtuales, repositorios de almacenamiento, sistemas de copia de seguridad y comunicaciones necesarias para su integración en el nuevo entorno."
+   }
+  },
+  {
+   "notice-type": "can-standard",
+   "publication-number": "674568-2026",
+   "classification-cpv": [
+    "48800000",
+    "72000000",
+    "48800000",
+    "72000000"
+   ],
+   "buyer-name": {
+    "spa": [
+     "Alcaldía del Ayuntamiento de Gijón"
+    ]
+   },
+   "publication-date": "2026-10-01+02:00",
+   "notice-title": {
+    "spa": "España – Sistemas y servidores de información – Suministro de dos servidores en régimen de alquiler para la base de datos corporativa y operación de primer nivel de los sistemas y base de datos, por procedimiento abierto, sujeto a regulación armonizada, con varios criterios de adjudicación",
+    "eng": "Spain – Information systems and servers – Suministro de dos servidores en régimen de alquiler para la base de datos corporativa y operación de primer nivel de los sistemas y base de datos, por procedimiento abierto, sujeto a regulación armonizada, con varios criterios de adjudicación"
+   }
+  },
+  {
+   "deadline-receipt-tender-date-lot": [
+    "2026-10-30+01:00",
+    "2026-10-30+01:00"
+   ],
+   "notice-type": "cn-standard",
+   "publication-number": "674630-2026",
+   "classification-cpv": [
+    "50312300",
+    "72222300",
+    "50312300",
+    "50312300",
+    "72222300",
+    "72222300"
+   ],
+   "estimated-value-lot": [
+    "2444520",
+    "2110761.7"
+   ],
+   "buyer-name": {
+    "spa": [
+     "Rectorado de la Universidad Autónoma de Madrid"
+    ]
+   },
+   "publication-date": "2026-10-01+02:00",
+   "notice-title": {
+    "spa": "España – Mantenimiento y reparación de equipos de redes de datos – Servicio de mantenimiento de la electrónica de la red cableada y de la infraestructura de ciberseguridad de la Universidad Autónoma de Madrid.",
+    "eng": "Spain – Maintenance and repair of data network equipment – Servicio de mantenimiento de la electrónica de la red cableada y de la infraestructura de ciberseguridad de la Universidad Autónoma de Madrid."
+   }
+  },
+  {
+   "notice-type": "can-standard",
+   "publication-number": "674694-2026",
+   "classification-cpv": [
+    "72320000",
+    "72320000"
+   ],
+   "buyer-name": {
+    "spa": [
+     "Gerencia de la Empresa Mancomunada del Aljarafe, S.A. (ALJARAFESA)"
+    ]
+   },
+   "publication-date": "2026-10-01+02:00",
+   "notice-title": {
+    "spa": "España – Servicios relacionados con bases de datos – Servicio de administración de base de datos Progress",
+    "eng": "Spain – Database services – Servicio de administración de base de datos Progress"
+   }
+  }
+ ]
+}
