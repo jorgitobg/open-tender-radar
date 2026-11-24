@@ -80,3 +80,13 @@ def test_ted_notice_type_is_parsed() -> None:
 def test_ted_missing_notice_type_is_none() -> None:
     payload = '{"notices": [{"publication-number": "1-2026", "notice-title": {"spa": "t"}}]}'
     assert parse_ted(payload).tenders[0].notice_type is None
+
+
+def test_ted_non_string_notice_type_is_reported_not_coerced() -> None:
+    payload = (
+        '{"notices": [{"publication-number": "1-2026", "notice-title": {"spa": "t"},'
+        ' "notice-type": ["can-standard"]}]}'
+    )
+    res = parse_ted(payload)
+    assert not res.tenders and res.issues[0].ref == "1-2026"
+    assert "notice-type" in res.issues[0].reason
