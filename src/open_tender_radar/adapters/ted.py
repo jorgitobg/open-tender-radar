@@ -36,6 +36,9 @@ def _parse_one(notice: dict[str, Any]) -> Tender:
     deadlines = [
         _date(d) for d in cast("list[Any]", notice.get("deadline-receipt-tender-date-lot") or [])
     ]
+    notice_type = notice.get("notice-type")
+    if notice_type is not None and not isinstance(notice_type, str):
+        raise ValueError("notice-type must be a string")
     title = _title(notice)
     if not title:
         raise ValueError("missing title")
@@ -47,6 +50,7 @@ def _parse_one(notice: dict[str, Any]) -> Tender:
         cpv=frozenset(notice.get("classification-cpv") or []),
         estimated_value=sum(values) if values else None,
         deadline=min(deadlines) if deadlines else None,
+        notice_type=notice_type or None,
     )
 
 

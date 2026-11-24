@@ -2,7 +2,7 @@
 
 Deterministic, rule-based screening of public tenders (TED + PLACSP) against a synthetic capability profile. Every GO / REVIEW / NO_GO verdict lists the criteria it was based on, with evidence.
 
-**What it is:** a CPV-prefix and keyword filter plus four explicit checks (CPV, estimated value, days to deadline, title keywords). No LLM, no analysis of tender documents, no scoring model.
+**What it is:** a CPV-prefix and keyword filter plus explicit checks (CPV, estimated value, days to deadline, title keywords and, for TED, notice status). No LLM, no analysis of tender documents, no scoring model.
 **What it is not:** a bid advisor. It never reads tender specifications, solvency requirements or award criteria.
 
 Public open data only. The profile in `examples/profile.yaml` is fictional.
@@ -45,16 +45,6 @@ python -m open_tender_radar --profile examples/profile.yaml --ted ted.json --pla
     pass    value     206,612 EUR within limits
     pass    deadline  7 days left
     unknown keywords  no profile keyword in title
-[REVIEW] TED:674568-2026 | Alcaldía del Ayuntamiento de Gijón | España – Sistemas y servidores de información – Suministro de dos servidores en 
-    pass    cpv       CPV 48800000, 72000000 within profile
-    unknown value     estimated value not published
-    unknown deadline  no submission deadline published
-    pass    keywords  keywords: datos
-[REVIEW] TED:674694-2026 | Gerencia de la Empresa Mancomunada del Aljarafe, S | España – Servicios relacionados con bases de datos – Servicio de administración 
-    pass    cpv       CPV 72320000 within profile
-    unknown value     estimated value not published
-    unknown deadline  no submission deadline published
-    pass    keywords  keywords: datos
 [NO_GO] PLACSP:017/26-SI | Dirección General de la Entidad Pública Empresaria | Servicio de análisis de ciberamenazas y gestión de riesgos del registro del CCTL
     pass    cpv       CPV 72246000, 72900000 within profile
     pass    value     274,965 EUR within limits
@@ -80,21 +70,36 @@ python -m open_tender_radar --profile examples/profile.yaml --ted ted.json --pla
     unknown value     estimated value not published
     fail    deadline  -5 days left, need at least 7
     pass    keywords  keywords: software
+    pass    status    cn-standard: open contract notice
 [NO_GO] TED:674551-2026 | Presidencia de Turisme Comunitat Valenciana | España – Servicios de gestión de instalaciones para el mantenimiento de sistemas
     pass    cpv       CPV 48000000, 72514300 within profile
     unknown value     estimated value not published
     fail    deadline  0 days left, need at least 7
     pass    keywords  keywords: datos
+    pass    status    cn-standard: open contract notice
+[NO_GO] TED:674568-2026 | Alcaldía del Ayuntamiento de Gijón | España – Sistemas y servidores de información – Suministro de dos servidores en 
+    pass    cpv       CPV 48800000, 72000000 within profile
+    unknown value     estimated value not published
+    unknown deadline  no submission deadline published
+    pass    keywords  keywords: datos
+    fail    status    can-standard: contract award notice, already awarded
 [NO_GO] TED:674630-2026 | Rectorado de la Universidad Autónoma de Madrid | España – Mantenimiento y reparación de equipos de redes de datos – Servicio de m
     pass    cpv       CPV 72222300 within profile
     fail    value     4,555,282 EUR above maximum 1,000,000
     fail    deadline  -5 days left, need at least 7
     pass    keywords  keywords: datos
+    pass    status    cn-standard: open contract notice
+[NO_GO] TED:674694-2026 | Gerencia de la Empresa Mancomunada del Aljarafe, S | España – Servicios relacionados con bases de datos – Servicio de administración 
+    pass    cpv       CPV 72320000 within profile
+    unknown value     estimated value not published
+    unknown deadline  no submission deadline published
+    pass    keywords  keywords: datos
+    fail    status    can-standard: contract award notice, already awarded
 ```
 
 ## Reports: compliance matrix (Markdown / JSON)
 
-`--format markdown|json` (optionally `--out FILE`) turns the same explained evaluation into a matrix with one row per tender and one column per criterion, plus an evidence section. It is a *screening* matrix over the four built-in criteria; it does not check tender-document requirements.
+`--format markdown|json` (optionally `--out FILE`) turns the same explained evaluation into a matrix with one row per tender and one column per criterion, plus an evidence section. It is a *screening* matrix over the built-in criteria; it does not check tender-document requirements.
 
 ```bash
 python -m open_tender_radar --profile examples/profile.yaml --ted tests/fixtures/ted_search_sample.json \
@@ -106,21 +111,20 @@ First lines of the real output:
 ```text
 # Tender screening report
 
-11 tenders parsed, 10 match the profile, 0 skipped. GO: 1, REVIEW: 2, NO_GO: 7.
+11 tenders parsed, 10 match the profile, 0 skipped. GO: 1, REVIEW: 0, NO_GO: 9.
 
 ## Compliance matrix
 
-| Tender | Verdict | cpv | value | deadline | keywords |
-|---|---|---|---|---|---|
-| PLACSP:412026 | GO | PASS | PASS | PASS | UNKNOWN |
-| TED:674568-2026 | REVIEW | PASS | UNKNOWN | UNKNOWN | PASS |
-| TED:674694-2026 | REVIEW | PASS | UNKNOWN | UNKNOWN | PASS |
+| Tender | Verdict | cpv | value | deadline | keywords | status |
+|---|---|---|---|---|---|---|
+| PLACSP:412026 | GO | PASS | PASS | PASS | UNKNOWN | - |
+| PLACSP:017/26-SI | NO_GO | PASS | PASS | FAIL | PASS | - |
 ```
 
 ## How verdicts are decided
 
 - A tender is kept only if its CPV code starts with a profile prefix or its title contains an include keyword, and its title contains no exclude keyword.
-- Criteria: `cpv`, `value`, `deadline`, `keywords`, each `pass`, `fail` or `unknown`, with evidence.
+- Criteria: `cpv`, `value`, `deadline`, `keywords` and, for TED only, `status`, each `pass`, `fail` or `unknown`, with evidence. `status` reads the TED notice type: `can-*` (contract award notice) fails, `cn-*` (contract notice) passes, anything else is unknown; PLACSP tenders have no `status` row.
 - Any `fail` on one of them gives NO_GO. Otherwise a missing value or deadline gives REVIEW. Otherwise GO.
 - A missing keyword in the title never blocks on its own.
 
@@ -129,7 +133,7 @@ First lines of the real output:
 - Keyword matching is substring match on the title only (no stemming, no summary or description text), so it can miss or over-match. In the demo, a SOC tender is GO although no profile keyword appears in its title (it passes on CPV).
 - Many TED notices have no estimated value or deadline in the returned fields; those become REVIEW, not GO.
 - TED values are summed over lots and the earliest lot deadline is used; PLACSP uses `EstimatedOverallContractAmount` and the submission end date. Time zones and times of day are ignored.
-- Notice status (e.g. already awarded) is not considered: the demo fixtures include awarded and expired notices, which end up NO_GO on the deadline rule.
+- Notice status is only derived from the TED notice type (`can-*` = already awarded). PLACSP status and other TED types (e.g. modifications, prior information notices) are not interpreted; expired notices are still caught by the deadline rule.
 - Currency is assumed to be EUR.
 - The fixtures are small trimmed recordings from 2026-11-04 and will go stale. Contact details, postal addresses, tax IDs, winner details and attached-document links were removed.
 

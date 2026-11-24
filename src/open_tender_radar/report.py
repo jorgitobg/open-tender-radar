@@ -1,7 +1,7 @@
 """US5: compliance matrix and Markdown/JSON reports.
 
 The matrix has one row per tender and one column per profile criterion (cpv, value, deadline,
-keywords), each cell PASS / FAIL / UNKNOWN with its evidence. It is built only from the
+keywords, status), each cell PASS / FAIL / UNKNOWN with its evidence. It is built only from the
 explained evaluation: no tender documents are read, so it is a screening matrix, not a
 bid-compliance matrix.
 """
@@ -14,7 +14,7 @@ from typing import Any
 
 from .domain.models import Evaluation, Verdict
 
-CRITERIA = ("cpv", "value", "deadline", "keywords")
+CRITERIA = ("cpv", "value", "deadline", "keywords", "status")
 
 
 def _esc(text: str) -> str:

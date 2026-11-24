@@ -21,6 +21,7 @@ class Tender:
     cpv: frozenset[str]
     estimated_value: float | None
     deadline: date | None
+    notice_type: str | None = None  # TED notice-type, e.g. cn-standard / can-standard
 
 
 @dataclass(frozen=True, slots=True)

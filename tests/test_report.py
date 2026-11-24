@@ -57,7 +57,7 @@ def test_markdown_matrix_has_row_per_tender(capsys: pytest.CaptureFixture[str]) 
     assert out.startswith("# Tender screening report")
     rows = [ln for ln in out.splitlines() if ln.startswith("| PLACSP:") or ln.startswith("| TED:")]
     assert len(rows) == 10
-    assert "| PLACSP:412026 | GO | PASS | PASS | PASS | UNKNOWN |" in out
+    assert "| PLACSP:412026 | GO | PASS | PASS | PASS | UNKNOWN | - |" in out
     assert "## Evidence" in out
 
 

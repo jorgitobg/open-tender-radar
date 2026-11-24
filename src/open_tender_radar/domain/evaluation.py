@@ -57,8 +57,23 @@ def _keywords(tender: Tender, profile: Profile) -> Criterion:
     return Criterion("keywords", Outcome.UNKNOWN, "no profile keyword in title")
 
 
+def _status(tender: Tender) -> Criterion | None:
+    """TED notice type: can-* (contract award notice) means the contract is already awarded.
+
+    Tenders without a notice type (PLACSP) get no status criterion at all.
+    """
+    nt = tender.notice_type
+    if nt is None:
+        return None
+    if nt.startswith("can-"):
+        return Criterion("status", Outcome.FAIL, f"{nt}: contract award notice, already awarded")
+    if nt.startswith("cn-"):
+        return Criterion("status", Outcome.PASS, f"{nt}: open contract notice")
+    return Criterion("status", Outcome.UNKNOWN, f"notice type {nt} not classified")
+
+
 def evaluate(tender: Tender, profile: Profile, today: date) -> Evaluation:
-    """Any FAIL on cpv/value/deadline/keywords -> NO_GO; else any UNKNOWN on value or
+    """Any FAIL on cpv/value/deadline/keywords/status -> NO_GO; else any UNKNOWN on value or
     deadline -> REVIEW; else GO. Keyword absence alone never blocks."""
     criteria = (
         _cpv(tender, profile),
@@ -66,6 +81,9 @@ def evaluate(tender: Tender, profile: Profile, today: date) -> Evaluation:
         _deadline(tender, profile, today),
         _keywords(tender, profile),
     )
+    status = _status(tender)
+    if status is not None:
+        criteria = (*criteria, status)
     if any(c.outcome is Outcome.FAIL for c in criteria):
         verdict = Verdict.NO_GO
     elif any(c.outcome is Outcome.UNKNOWN and c.name in {"value", "deadline"} for c in criteria):
