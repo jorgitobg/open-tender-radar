@@ -96,3 +96,27 @@ def test_load_profile_rejects_bad_input(tmp_path: Path) -> None:
     f.write_text("name: n\n", encoding="utf-8")
     with pytest.raises(ValueError, match="cpv_prefixes"):
         load_profile(f)
+
+
+def test_award_notice_is_no_go_with_status_criterion() -> None:
+    ev = evaluate(mk(notice_type="can-standard", deadline=None), PROFILE, TODAY)
+    assert ev.verdict is Verdict.NO_GO
+    status = next(c for c in ev.criteria if c.name == "status")
+    assert status.outcome is Outcome.FAIL and "can-standard" in status.evidence
+
+
+def test_contract_notice_passes_status_and_keeps_verdict() -> None:
+    ev = evaluate(mk(notice_type="cn-standard"), PROFILE, TODAY)
+    assert ev.verdict is Verdict.GO
+    assert next(c for c in ev.criteria if c.name == "status").outcome is Outcome.PASS
+
+
+def test_unclassified_notice_type_is_unknown_and_never_blocks() -> None:
+    ev = evaluate(mk(notice_type="pin-only"), PROFILE, TODAY)
+    assert ev.verdict is Verdict.GO
+    assert next(c for c in ev.criteria if c.name == "status").outcome is Outcome.UNKNOWN
+
+
+def test_no_notice_type_adds_no_status_criterion() -> None:
+    ev = evaluate(mk(), PROFILE, TODAY)
+    assert "status" not in {c.name for c in ev.criteria}

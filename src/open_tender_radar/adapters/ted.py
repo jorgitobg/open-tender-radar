@@ -47,6 +47,7 @@ def _parse_one(notice: dict[str, Any]) -> Tender:
         cpv=frozenset(notice.get("classification-cpv") or []),
         estimated_value=sum(values) if values else None,
         deadline=min(deadlines) if deadlines else None,
+        notice_type=str(notice["notice-type"]) if notice.get("notice-type") else None,
     )
 
 

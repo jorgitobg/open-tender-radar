@@ -67,3 +67,16 @@ def test_placsp_deadline_with_timezone_suffix_is_accepted() -> None:
     )
     res = parse_placsp(xml.encode())
     assert not res.issues and res.tenders[0].deadline == date(2026, 12, 1)
+
+
+def test_ted_notice_type_is_parsed() -> None:
+    res = parse_ted((FIX / "ted_search_sample.json").read_bytes())
+    types = {t.id: t.notice_type for t in res.tenders}
+    assert types["674346-2026"] == "cn-standard"
+    assert types["674568-2026"] == "can-standard"
+    assert sum(v == "can-standard" for v in types.values()) == 2
+
+
+def test_ted_missing_notice_type_is_none() -> None:
+    payload = '{"notices": [{"publication-number": "1-2026", "notice-title": {"spa": "t"}}]}'
+    assert parse_ted(payload).tenders[0].notice_type is None
