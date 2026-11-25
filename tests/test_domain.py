@@ -120,3 +120,33 @@ def test_unclassified_notice_type_is_unknown_and_never_blocks() -> None:
 def test_no_notice_type_adds_no_status_criterion() -> None:
     ev = evaluate(mk(), PROFILE, TODAY)
     assert "status" not in {c.name for c in ev.criteria}
+
+
+def _placsp(code: str | None, **kw: object) -> Tender:
+    return mk(source=Source.PLACSP, notice_type=code, **kw)
+
+
+@pytest.mark.parametrize("code", ["ADJ", "RES", "ANUL"])
+def test_placsp_awarded_resolved_or_annulled_is_no_go(code: str) -> None:
+    ev = evaluate(_placsp(code), PROFILE, TODAY)
+    assert ev.verdict is Verdict.NO_GO
+    status = next(c for c in ev.criteria if c.name == "status")
+    assert status.outcome is Outcome.FAIL and code in status.evidence
+
+
+def test_placsp_published_passes_status_and_keeps_verdict() -> None:
+    ev = evaluate(_placsp("PUB"), PROFILE, TODAY)
+    assert ev.verdict is Verdict.GO
+    assert next(c for c in ev.criteria if c.name == "status").outcome is Outcome.PASS
+
+
+@pytest.mark.parametrize("code", ["EV", "XYZ"])
+def test_placsp_evaluation_or_unknown_code_is_unknown_and_never_blocks(code: str) -> None:
+    ev = evaluate(_placsp(code), PROFILE, TODAY)
+    assert ev.verdict is Verdict.GO
+    assert next(c for c in ev.criteria if c.name == "status").outcome is Outcome.UNKNOWN
+
+
+def test_ted_prefixes_are_not_applied_to_placsp_codes() -> None:
+    ev = evaluate(_placsp("can-standard"), PROFILE, TODAY)
+    assert next(c for c in ev.criteria if c.name == "status").outcome is Outcome.UNKNOWN

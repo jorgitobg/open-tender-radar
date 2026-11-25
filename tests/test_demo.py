@@ -13,6 +13,8 @@ def test_demo_prints_ranked_explained_table(capsys: pytest.CaptureFixture[str]) 
     assert out.index("[GO]") < out.index("[NO_GO]")
     assert "[REVIEW]" not in out  # the two undated TED notices are award notices -> NO_GO
     assert "fail    status    can-standard: contract award notice, already awarded" in out
+    assert "fail    status    ADJ: folder awarded" in out
+    assert "pass    status    PUB: folder published" in out
     assert "fail    deadline" in out
 
 

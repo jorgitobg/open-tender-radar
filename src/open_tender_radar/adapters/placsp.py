@@ -12,6 +12,7 @@ _ATOM = "{http://www.w3.org/2005/Atom}"
 _CBC = "{urn:dgpe:names:draft:codice:schema:xsd:CommonBasicComponents-2}"
 _CAC = "{urn:dgpe:names:draft:codice:schema:xsd:CommonAggregateComponents-2}"
 _EXT = "{urn:dgpe:names:draft:codice-place-ext:schema:xsd:CommonAggregateComponents-2}"
+_EXT_BASIC = "{urn:dgpe:names:draft:codice-place-ext:schema:xsd:CommonBasicComponents-2}"
 
 
 def _text(el: ET.Element | None) -> str:
@@ -33,6 +34,7 @@ def _parse_entry(entry: ET.Element) -> Tender:
     )
     cpv = frozenset(_text(c) for c in folder.iter(f"{_CBC}ItemClassificationCode") if _text(c))
     amount = _text(folder.find(f".//{_CBC}EstimatedOverallContractAmount"))
+    status_code = _text(folder.find(f"{_EXT_BASIC}ContractFolderStatusCode"))
     deadline_raw = _text(folder.find(f".//{_CAC}TenderSubmissionDeadlinePeriod/{_CBC}EndDate"))
     return Tender(
         id=folder_id,
@@ -42,6 +44,7 @@ def _parse_entry(entry: ET.Element) -> Tender:
         cpv=cpv,
         estimated_value=float(amount) if amount else None,
         deadline=date.fromisoformat(deadline_raw[:10]) if deadline_raw else None,
+        notice_type=status_code or None,
     )
 
 
