@@ -22,6 +22,9 @@ def _value(tender: Tender, profile: Profile) -> Criterion:
         return Criterion("value", Outcome.PASS, "no value limits in profile")
     if v is None:
         return Criterion("value", Outcome.UNKNOWN, "estimated value not published")
+    if tender.currency not in (None, "EUR"):
+        # Profile limits are in EUR and no conversion is attempted: never compare across currencies.
+        return Criterion("value", Outcome.UNKNOWN, f"value in {tender.currency}, not converted")
     if profile.min_value is not None and v < profile.min_value:
         return Criterion(
             "value", Outcome.FAIL, f"{v:,.0f} EUR below minimum {profile.min_value:,.0f}"

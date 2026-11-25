@@ -33,7 +33,9 @@ def _parse_entry(entry: ET.Element) -> Tender:
         folder.find(f"{_EXT}LocatedContractingParty/{_CAC}Party/{_CAC}PartyName/{_CBC}Name")
     )
     cpv = frozenset(_text(c) for c in folder.iter(f"{_CBC}ItemClassificationCode") if _text(c))
-    amount = _text(folder.find(f".//{_CBC}EstimatedOverallContractAmount"))
+    amount_el = folder.find(f".//{_CBC}EstimatedOverallContractAmount")
+    amount = _text(amount_el)
+    currency = (amount_el.get("currencyID") or "").strip().upper() if amount_el is not None else ""
     status_code = _text(folder.find(f"{_EXT_BASIC}ContractFolderStatusCode"))
     deadline_raw = _text(folder.find(f".//{_CAC}TenderSubmissionDeadlinePeriod/{_CBC}EndDate"))
     return Tender(
@@ -45,6 +47,7 @@ def _parse_entry(entry: ET.Element) -> Tender:
         estimated_value=float(amount) if amount else None,
         deadline=date.fromisoformat(deadline_raw[:10]) if deadline_raw else None,
         notice_type=status_code or None,
+        currency=currency or None,
     )
 
 
