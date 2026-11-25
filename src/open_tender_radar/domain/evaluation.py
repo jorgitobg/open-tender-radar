@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import date
 
-from .models import Criterion, Evaluation, Outcome, Profile, Tender, Verdict
+from .models import Criterion, Evaluation, Outcome, Profile, Source, Tender, Verdict
 
 
 def _cpv(tender: Tender, profile: Profile) -> Criterion:
@@ -57,14 +57,30 @@ def _keywords(tender: Tender, profile: Profile) -> Criterion:
     return Criterion("keywords", Outcome.UNKNOWN, "no profile keyword in title")
 
 
-def _status(tender: Tender) -> Criterion | None:
-    """TED notice type: can-* (contract award notice) means the contract is already awarded.
+_PLACSP_CLOSED = {
+    "ADJ": "awarded",
+    "RES": "resolved",
+    "ANUL": "annulled",
+}
 
-    Tenders without a notice type (PLACSP) get no status criterion at all.
+
+def _status(tender: Tender) -> Criterion | None:
+    """Status criterion from the source's own status field.
+
+    TED: can-* (contract award notice) means already awarded, cn-* is an open notice.
+    PLACSP: ContractFolderStatusCode; PUB (published) passes, ADJ / RES / ANUL (awarded,
+    resolved, annulled) fail, EV (in evaluation) and anything else is unknown.
+    Tenders without a status field get no status criterion at all.
     """
     nt = tender.notice_type
     if nt is None:
         return None
+    if tender.source is Source.PLACSP:
+        if nt in _PLACSP_CLOSED:
+            return Criterion("status", Outcome.FAIL, f"{nt}: folder {_PLACSP_CLOSED[nt]}")
+        if nt == "PUB":
+            return Criterion("status", Outcome.PASS, f"{nt}: folder published")
+        return Criterion("status", Outcome.UNKNOWN, f"folder status {nt} not classified")
     if nt.startswith("can-"):
         return Criterion("status", Outcome.FAIL, f"{nt}: contract award notice, already awarded")
     if nt.startswith("cn-"):

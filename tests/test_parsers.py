@@ -90,3 +90,22 @@ def test_ted_non_string_notice_type_is_reported_not_coerced() -> None:
     res = parse_ted(payload)
     assert not res.tenders and res.issues[0].ref == "1-2026"
     assert "notice-type" in res.issues[0].reason
+
+
+def test_placsp_status_code_is_parsed_into_notice_type() -> None:
+    res = parse_placsp((FIX / "placsp_sample.atom").read_bytes())
+    codes = {t.id: t.notice_type for t in res.tenders}
+    assert codes["2027/001/PNSP"] == "ADJ"
+    assert sorted(v for v in codes.values() if v) == ["ADJ", "EV", "EV", "EV", "PUB", "PUB"]
+
+
+def test_placsp_entry_without_status_code_has_no_notice_type() -> None:
+    xml = (
+        '<feed xmlns="http://www.w3.org/2005/Atom"'
+        ' xmlns:cbc="urn:dgpe:names:draft:codice:schema:xsd:CommonBasicComponents-2"'
+        ' xmlns:ext="urn:dgpe:names:draft:codice-place-ext:schema:xsd:CommonAggregateComponents-2">'
+        "<entry><title>t</title><ext:ContractFolderStatus><cbc:ContractFolderID>X</cbc:ContractFolderID>"
+        "</ext:ContractFolderStatus></entry></feed>"
+    )
+    res = parse_placsp(xml.encode())
+    assert not res.issues and res.tenders[0].notice_type is None

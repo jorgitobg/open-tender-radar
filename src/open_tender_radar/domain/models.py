@@ -21,7 +21,8 @@ class Tender:
     cpv: frozenset[str]
     estimated_value: float | None
     deadline: date | None
-    notice_type: str | None = None  # TED notice-type, e.g. cn-standard / can-standard
+    # TED notice-type (cn-standard, can-standard) or PLACSP folder status code (PUB, EV, ADJ)
+    notice_type: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
