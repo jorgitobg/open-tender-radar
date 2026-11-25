@@ -23,6 +23,8 @@ class Tender:
     deadline: date | None
     # TED notice-type (cn-standard, can-standard) or PLACSP folder status code (PUB, EV, ADJ)
     notice_type: str | None = None
+    # ISO 4217 code declared by the source for estimated_value; None = not declared (unknown)
+    currency: str | None = None
 
 
 @dataclass(frozen=True, slots=True)

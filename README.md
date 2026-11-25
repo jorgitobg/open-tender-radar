@@ -139,7 +139,7 @@ First lines of the real output:
 - Many TED notices have no estimated value or deadline in the returned fields; those become REVIEW, not GO.
 - TED values are summed over lots and the earliest lot deadline is used; PLACSP uses `EstimatedOverallContractAmount` and the submission end date. Time zones and times of day are ignored.
 - Notice status comes from the TED notice type (`can-*` = already awarded) and the PLACSP folder status code (`ADJ`/`RES`/`ANUL` fail). The code meanings follow the public PLACSP syndication codelist as commonly documented; the codelist file itself was not machine-readable when this was written, so only those three codes are treated as closed and `EV` stays unknown. Other TED types (e.g. modifications, prior information notices) are not interpreted; expired notices are still caught by the deadline rule.
-- Currency is assumed to be EUR.
+- Currency: PLACSP's `currencyID` on the estimated amount is read. EUR, or no declared currency, is compared against the profile limits (which are in EUR). Any other declared currency makes the `value` criterion `unknown` ("value in XXX, not converted", so the tender goes to REVIEW if nothing else fails); no conversion or exchange rates are used. The TED adapter reads no currency field (it is not among the requested fields or the recorded fixture), so TED values are still assumed to be EUR.
 - The fixtures are small trimmed recordings from 2026-11-04 and will go stale. Contact details, postal addresses, tax IDs, winner details and attached-document links were removed.
 
 ## Source attribution

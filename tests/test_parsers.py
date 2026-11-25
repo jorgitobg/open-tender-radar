@@ -109,3 +109,47 @@ def test_placsp_entry_without_status_code_has_no_notice_type() -> None:
     )
     res = parse_placsp(xml.encode())
     assert not res.issues and res.tenders[0].notice_type is None
+
+
+_PLACSP_HEAD = (
+    '<feed xmlns="http://www.w3.org/2005/Atom"'
+    ' xmlns:cbc="urn:dgpe:names:draft:codice:schema:xsd:CommonBasicComponents-2"'
+    ' xmlns:cac="urn:dgpe:names:draft:codice:schema:xsd:CommonAggregateComponents-2"'
+    ' xmlns:ext="urn:dgpe:names:draft:codice-place-ext:schema:xsd:CommonAggregateComponents-2">'
+    "<entry><title>t</title><ext:ContractFolderStatus><cbc:ContractFolderID>X</cbc:ContractFolderID>"
+)
+
+
+def _placsp_with_amount(amount_element: str) -> bytes:
+    xml = (
+        f"{_PLACSP_HEAD}<cac:ProcurementProject><cac:BudgetAmount>{amount_element}"
+        "</cac:BudgetAmount></cac:ProcurementProject></ext:ContractFolderStatus></entry></feed>"
+    )
+    return xml.encode()
+
+
+def test_placsp_fixture_amounts_are_declared_in_eur() -> None:
+    res = parse_placsp((FIX / "placsp_sample.atom").read_bytes())
+    assert {t.currency for t in res.tenders if t.estimated_value is not None} == {"EUR"}
+
+
+def test_placsp_reads_a_non_eur_currency_id_without_converting() -> None:
+    payload = _placsp_with_amount(
+        '<cbc:EstimatedOverallContractAmount currencyID="usd">1000'
+        "</cbc:EstimatedOverallContractAmount>"
+    )
+    t = parse_placsp(payload).tenders[0]
+    assert t.currency == "USD" and t.estimated_value == 1000.0
+
+
+def test_placsp_amount_without_currency_id_is_unknown_currency() -> None:
+    payload = _placsp_with_amount(
+        "<cbc:EstimatedOverallContractAmount>1000</cbc:EstimatedOverallContractAmount>"
+    )
+    t = parse_placsp(payload).tenders[0]
+    assert t.currency is None and t.estimated_value == 1000.0
+
+
+def test_ted_does_not_report_a_currency() -> None:
+    res = parse_ted((FIX / "ted_search_sample.json").read_bytes())
+    assert {t.currency for t in res.tenders} == {None}

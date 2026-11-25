@@ -150,3 +150,26 @@ def test_placsp_evaluation_or_unknown_code_is_unknown_and_never_blocks(code: str
 def test_ted_prefixes_are_not_applied_to_placsp_codes() -> None:
     ev = evaluate(_placsp("can-standard"), PROFILE, TODAY)
     assert next(c for c in ev.criteria if c.name == "status").outcome is Outcome.UNKNOWN
+
+
+@pytest.mark.parametrize("currency", [None, "EUR"])
+def test_value_in_eur_or_unspecified_currency_is_compared(currency: str | None) -> None:
+    ev = evaluate(mk(estimated_value=10.0, currency=currency), PROFILE, TODAY)
+    value = next(c for c in ev.criteria if c.name == "value")
+    assert value.outcome is Outcome.FAIL and "10 EUR below minimum" in value.evidence
+
+
+@pytest.mark.parametrize("amount", [10.0, 5000.0, 1e9])
+def test_value_in_another_currency_is_unknown_never_compared(amount: float) -> None:
+    ev = evaluate(mk(estimated_value=amount, currency="USD"), PROFILE, TODAY)
+    value = next(c for c in ev.criteria if c.name == "value")
+    assert value.outcome is Outcome.UNKNOWN
+    assert value.evidence == "value in USD, not converted"
+    assert ev.verdict is Verdict.REVIEW
+
+
+def test_other_currency_without_value_limits_still_passes_the_value_criterion() -> None:
+    p = Profile(name="n", cpv_prefixes=("72",), include_keywords=("datos",))
+    ev = evaluate(mk(estimated_value=5000.0, currency="USD"), p, TODAY)
+    value = next(c for c in ev.criteria if c.name == "value")
+    assert value.outcome is Outcome.PASS
